@@ -1,0 +1,21 @@
+# Xcode files
+.DS_Store
+*.xcuserstate
+*.xcworkspace
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/xcshareddata/
+*.xcodeproj/xcuserdata/
+
+# Swift Packages
+/.swiftpm
+/Package.resolved
+
+# Firebase
+GoogleService-Info.plist
+
+# Build artifacts
+DerivedData/
+build/
+Pods/
+
