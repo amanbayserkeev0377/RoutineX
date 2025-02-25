@@ -21,7 +21,7 @@ struct RoutineXApp: App {
                 AuthView()
                     .environmentObject(authViewModel)
             } else {
-                MyHabitsView()
+                MainTabView()
                     .environmentObject(authViewModel)
                     .environmentObject(habitViewModel)
             }

@@ -11,18 +11,31 @@ struct MyHabitsView: View {
     @EnvironmentObject var habitViewModel: HabitViewModel
     @State private var selectedDate = Date()
     @State private var showDatePicker = false
+    @State private var showNewHabitView = false
 
     var formattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMM"
-        return formatter.string(from: selectedDate)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        
+        if selectedDay == today {
+            return "Today"
+        } else if selectedDay == calendar.date(byAdding: .day, value: -1, to: today) {
+            return "Yesterday"
+        } else if selectedDay == calendar.date(byAdding: .day, value: 1, to: today) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMM"
+            return formatter.string(from: selectedDate)
+        }
     }
 
     var body: some View {
         ZStack {
             Color(.systemGroupedBackground)
                 .edgesIgnoringSafeArea(.all)
-
+            
             VStack {
                 HStack {
                     Button(action: {
@@ -32,15 +45,15 @@ struct MyHabitsView: View {
                             .font(.title)
                             .foregroundStyle(.gray)
                     }
-
+                    
                     Spacer()
-
+                    
                     Text(formattedDate)
                         .font(.title)
                         .bold()
-
+                    
                     Spacer()
-
+                    
                     Button(action: { showDatePicker.toggle() }) {
                         Image(systemName: "calendar")
                             .font(.title)
@@ -49,48 +62,45 @@ struct MyHabitsView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 10)
-
+                
                 ScrollView {
                     LazyVStack(spacing: 15) {
-                        ForEach(habitViewModel.habits) { habit in
-                            HabitCardView(habit: habit)
+                        if habitViewModel.habits.isEmpty {
+                            Button(action: { showNewHabitView = true }) {
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundStyle(.blue)
+                                    Text("Add new habit")
+                                        .font(.headline)
+                                        .foregroundStyle(.blue)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                            }
+                            .padding()
+                        } else {
+                            ForEach(habitViewModel.habits) { habit in
+                                HabitCardView(habit: habit)
+                            }
                         }
                     }
                     .padding(.horizontal)
                 }
                 .padding(.top, 10)
             }
-
-            if showDatePicker {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        showDatePicker = false
-                    }
-
-                VStack {
-                    DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                        .datePickerStyle(.graphical)
-                        .frame(height: 400)
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
-                        .padding(.horizontal, 20)
-
-                    Button("Done") {
-                        showDatePicker = false
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.bottom, 20)
-                }
-                .transition(.move(edge: .bottom))
-            }
+        }
+        .sheet(isPresented: $showDatePicker) {
+            DatePickerView(selectedDate: $selectedDate)
         }
         .animation(.easeInOut, value: showDatePicker)
+        .sheet(isPresented: $showNewHabitView) {
+            NewHabitView()
+        }
     }
 }
 
-
-// 🔹 Кастомная карточка привычки
 struct HabitCardView: View {
     var habit: Habit
 
