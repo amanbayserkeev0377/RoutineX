@@ -13,7 +13,7 @@ struct Habit: Identifiable, Codable {
     var title: String
     var icon: String
     var color: String
-    var goal: Int
-    var progress: Int
+    var goal: Double
+    var progress: Double
     var createdAt: Date
 }

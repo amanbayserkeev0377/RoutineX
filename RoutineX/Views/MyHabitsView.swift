@@ -12,127 +12,99 @@ struct MyHabitsView: View {
     @State private var selectedDate = Date()
     @State private var showDatePicker = false
     @State private var showNewHabitView = false
+    @State private var showSettings = false
 
     var formattedDate: String {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let selectedDay = calendar.startOfDay(for: selectedDate)
-        
-        if selectedDay == today {
-            return "Today"
-        } else if selectedDay == calendar.date(byAdding: .day, value: -1, to: today) {
-            return "Yesterday"
-        } else if selectedDay == calendar.date(byAdding: .day, value: 1, to: today) {
-            return "Tomorrow"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd MMM"
-            return formatter.string(from: selectedDate)
-        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, d MMM"
+        return formatter.string(from: selectedDate)
     }
 
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                HStack {
-                    Button(action: {
-                        // TODO: Переход в Settings
-                    }) {
-                        Image(systemName: "person.crop.circle")
-                            .font(.title)
-                            .foregroundStyle(.gray)
-                    }
-                    
-                    Spacer()
-                    
-                    Text(formattedDate)
-                        .font(.title)
-                        .bold()
-                    
-                    Spacer()
-                    
-                    Button(action: { showDatePicker.toggle() }) {
-                        Image(systemName: "calendar")
-                            .font(.title)
-                            .foregroundStyle(.gray)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 10)
-                
-                ScrollView {
-                    LazyVStack(spacing: 15) {
-                        if habitViewModel.habits.isEmpty {
-                            Button(action: { showNewHabitView = true }) {
-                                HStack {
-                                    Image(systemName: "plus.circle.fill")
-                                        .foregroundStyle(.blue)
-                                    Text("Add new habit")
-                                        .font(.headline)
-                                        .foregroundStyle(.blue)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .clipShape(RoundedRectangle(cornerRadius: 15))
-                            }
-                            .padding()
-                        } else {
-                            ForEach(habitViewModel.habits) { habit in
-                                HabitCardView(habit: habit)
-                            }
+        NavigationView {
+            let habits = habitViewModel.habits.filter { $0.id != nil }
+
+            ZStack {
+                List {
+                    ForEach(habits.compactMap { $0.id }, id: \.self) { id in
+                        if let habit = habits.first(where: { $0.id == id }) {
+                            HabitRowView(habit: habit, habitViewModel: habitViewModel)
                         }
                     }
-                    .padding(.horizontal)
                 }
-                .padding(.top, 10)
+                .navigationTitle(formattedDate)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(action: { showSettings.toggle() }) {
+                            Image(systemName: "gearshape")
+                        }
+                    }
+
+                    
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: { showDatePicker.toggle() }) {
+                            Image(systemName: "calendar")
+                        }
+                    }
+                }
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: { showNewHabitView = true }) {
+                            Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .frame(width: 36, height: 36)
+                                .foregroundStyle(.blue)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                    }
+                }
             }
         }
         .sheet(isPresented: $showDatePicker) {
             DatePickerView(selectedDate: $selectedDate)
         }
-        .animation(.easeInOut, value: showDatePicker)
         .sheet(isPresented: $showNewHabitView) {
             NewHabitView()
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
     }
 }
 
-struct HabitCardView: View {
-    var habit: Habit
+struct HabitRowView: View {
+    let habit: Habit
+    let habitViewModel: HabitViewModel
 
     var body: some View {
         HStack {
             Text(habit.icon)
-                .font(.largeTitle)
-                .padding()
-                .background(Color.white.opacity(0.9))
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .font(.title2)
 
-            VStack(alignment: .leading, spacing: 5) {
-                Text(habit.title)
+            VStack(alignment: .leading) {
+                let title = habit.title
+                let progressText = "\(Int(habit.progress))/\(Int(habit.goal)) completed"
+
+                Text(title)
                     .font(.headline)
-                Text("\(habit.progress)/\(habit.goal) completed")
+                Text(progressText)
                     .font(.subheadline)
                     .foregroundStyle(.gray)
             }
-
             Spacer()
 
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(habit.progress >= habit.goal ? .green : .gray)
-                .font(.title)
+            Button(action: {
+                habitViewModel.toggleHabitCompletion(habit)
+            }) {
+                Image(systemName: habit.progress >= habit.goal ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(habit.progress >= habit.goal ? .green : .gray)
+                    .font(.title2)
+            }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(radius: 5)
-        )
+        .padding(.vertical, 4)
     }
 }
-
-

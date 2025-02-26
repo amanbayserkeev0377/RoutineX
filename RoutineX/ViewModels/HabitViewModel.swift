@@ -32,7 +32,7 @@ class HabitViewModel: ObservableObject {
             }
     }
     
-    func addHabit(title: String, icon: String, color: String, goal: Int) {
+    func addHabit(title: String, icon: String, color: String, goal: Double) {
         let newHabit = Habit(
             title: title,
             icon: icon,
@@ -46,6 +46,26 @@ class HabitViewModel: ObservableObject {
             _ = try db.collection("habits").addDocument(from: newHabit)
         } catch {
             print("Error adding habit: \(error)")
+        }
+    }
+    
+    func toggleHabitCompletion(_ habit: Habit) {
+        guard let habitID = habit.id else { return }
+        
+        let newProgress = habit.progress >= habit.goal ? 0 : habit.progress + 1
+        
+        db.collection("habits").document(habitID).updateData([
+            "progress": newProgress
+        ]) { error in
+            if let error = error {
+                print("Error updating habit: \(error)")
+            } else {
+                DispatchQueue.main.async {
+                    if let index = self.habits.firstIndex(where: { $0.id == habitID }) {
+                        self.habits[index].progress = newProgress
+                    }
+                }
+            }
         }
     }
 }

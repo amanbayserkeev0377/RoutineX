@@ -9,128 +9,84 @@ import SwiftUI
 
 struct NewHabitView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var habitName: String = ""
-    @State private var selectedIcon: String = "💪"
-    @State private var selectedColor: Color = .red
-    @State private var selectedGoal: String = "Daily"
-    @State private var remindersEnabled: Bool = false
-    
-    var body: some View {
-        VStack {
-            // Title
-            HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(.gray)
-                }
-                Spacer()
-                Text("New Habit")
-                    .font(.title2)
-                    .bold()
-                Spacer()
-                Button(action: { saveHabit() }) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(.blue)
-                }
-            }
-            .padding()
-            
-            // Habit name
-            VStack(alignment: .leading, spacing: 8) {
-                Text("NAME")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                TextField("Workout", text: $habitName)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .padding()
-            
-            // Icon and Color
-            HStack(spacing: 15) {
-                HabitOptionView(title: "ICON", value: selectedIcon)
-                HabitOptionView(title: "COLOR", value: "", color: selectedColor)
-            }
-            .padding()
-            
-            // Goal
-            VStack(alignment: .leading, spacing: 8) {
-                Text("GOAL")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                HStack {
-                    Text("\(selectedGoal)")
-                        .font(.headline)
-                    Spacer()
-                    Button("Change") {
-                        selectedGoal = (selectedGoal == "Daily") ? "Every Day" : "Daily"
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .padding()
-            
-            // Reminders
-            VStack(alignment: .leading, spacing: 8) {
-                Text("REMINDERS")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
-                Toggle("Enable reminders", isOn: $remindersEnabled)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            .padding()
-            
-            // Add habit button
-            Button(action: { saveHabit() }) {
-                Text("ADD HABIT")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
-                    .padding(.horizontal)
-            }
-            .padding(.top, 10)
-        }
-        .padding(.bottom, 20)
-    }
-    
-    func saveHabit() {
-        // TODO: добавить сохр в firestore
-        dismiss()
-    }
-}
+    @EnvironmentObject var habitViewModel: HabitViewModel
 
-struct HabitOptionView: View {
-    var title: String
-    var value: String
-    var color: Color? = nil
-    
+    @State private var habitName: String = ""
+    @State private var selectedIcon: String = "🔥"
+    @State private var selectedColor: Color = .blue
+    @State private var selectedGoal: String = "Daily"
+
+    let icons = ["🔥", "💪", "📖", "🧘‍♂️", "🏃‍♂️", "🍎", "💤"]
+    let colors: [Color] = [.red, .blue, .green, .orange, .purple]
+
     var body: some View {
-        VStack {
-            if let color = color {
-                Circle()
-                    .fill(color)
-                    .frame(width: 40, height: 40)
-            } else {
-                Text(value)
-                    .font(.largeTitle)
+        NavigationView {
+            List {
+                Section {
+                    TextField("Habit name", text: $habitName)
+                        .padding(.vertical, 8)
+                }
+
+                Section(header: Text("ICON")) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(icons, id: \.self) { icon in
+                                Text(icon)
+                                    .font(.largeTitle)
+                                    .padding()
+                                    .background(icon == selectedIcon ? Color(.systemGray5) : Color.clear)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .onTapGesture {
+                                        selectedIcon = icon
+                                    }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                Section(header: Text("COLOR")) {
+                    HStack {
+                        ForEach(colors, id: \.self) { color in
+                            Circle()
+                                .fill(color)
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.black.opacity(color == selectedColor ? 1 : 0), lineWidth: 2)
+                                )
+                                .onTapGesture {
+                                    selectedColor = color
+                                }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                Section(header: Text("GOAL")) {
+                    Picker("Goal", selection: $selectedGoal) {
+                        Text("Daily").tag("Daily")
+                        Text("Every Day").tag("Every Day")
+                    }
+                    .pickerStyle(.segmented)
+                }
             }
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.gray)
+            .navigationTitle("New Habit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { saveHabit() }
+                        .bold()
+                }
+            }
         }
-        .frame(width: 100, height: 80)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 15))
+    }
+
+    private func saveHabit() {
+        habitViewModel.addHabit(title: habitName, icon: selectedIcon, color: selectedColor.description, goal: 1)
+        dismiss()
     }
 }
