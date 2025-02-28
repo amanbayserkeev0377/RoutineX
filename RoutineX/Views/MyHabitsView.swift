@@ -13,17 +13,17 @@ struct MyHabitsView: View {
     @State private var showDatePicker = false
     @State private var showNewHabitView = false
     @State private var showSettings = false
-
+    
     var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, d MMM"
         return formatter.string(from: selectedDate)
     }
-
+    
     var body: some View {
         NavigationView {
             let habits = habitViewModel.habits.filter { $0.id != nil }
-
+            
             ZStack {
                 List {
                     ForEach(habits.compactMap { $0.id }, id: \.self) { id in
@@ -31,6 +31,7 @@ struct MyHabitsView: View {
                             HabitRowView(habit: habit, habitViewModel: habitViewModel)
                         }
                     }
+                    .onDelete(perform: deleteHabit)
                 }
                 .navigationTitle(formattedDate)
                 .toolbar {
@@ -39,7 +40,7 @@ struct MyHabitsView: View {
                             Image(systemName: "gearshape")
                         }
                     }
-
+                    
                     
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: { showDatePicker.toggle() }) {
@@ -47,7 +48,7 @@ struct MyHabitsView: View {
                         }
                     }
                 }
-
+                
                 VStack {
                     Spacer()
                     HStack {
@@ -74,21 +75,32 @@ struct MyHabitsView: View {
             SettingsView()
         }
     }
+    
+    private func deleteHabit(at offsets: IndexSet) {
+        withAnimation {
+            offsets.map { habitViewModel.habits[$0] }.forEach { habit in
+                habitViewModel.deleteHabit(habit)
+            }
+        }
+    }
 }
 
-struct HabitRowView: View {
-    let habit: Habit
-    let habitViewModel: HabitViewModel
 
+
+
+struct HabitRowView: View {
+    let habit: HabitEntity
+    let habitViewModel: HabitViewModel
+    
     var body: some View {
         HStack {
-            Text(habit.icon)
+            Text(habit.icon ?? "⬜")
                 .font(.title2)
-
+            
             VStack(alignment: .leading) {
-                let title = habit.title
+                let title = habit.title ?? "Untitled Habit"
                 let progressText = "\(Int(habit.progress))/\(Int(habit.goal)) completed"
-
+                
                 Text(title)
                     .font(.headline)
                 Text(progressText)
@@ -96,7 +108,7 @@ struct HabitRowView: View {
                     .foregroundStyle(.gray)
             }
             Spacer()
-
+            
             Button(action: {
                 habitViewModel.toggleHabitCompletion(habit)
             }) {

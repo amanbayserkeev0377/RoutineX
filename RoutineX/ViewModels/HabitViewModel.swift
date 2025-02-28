@@ -6,66 +6,76 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
-import Combine
+import CoreData
 
 class HabitViewModel: ObservableObject {
-    @Published var habits: [Habit] = []
-    private var db = Firestore.firestore()
-    private var cancellables = Set<AnyCancellable>()
+    @Published var habits: [HabitEntity] = []
     
-    init() {
+    private let context: NSManagedObjectContext
+    
+    init(context: NSManagedObjectContext) {
+        self.context = context
         fetchHabits()
     }
     
     func fetchHabits() {
-        db.collection("habits")
-            .order(by: "createdAt", descending: true)
-            .addSnapshotListener { snapshot, error in
-                if let error = error {
-                    print("Error fetching habits: \(error)")
-                    return
-                }
-                self.habits = snapshot?.documents.compactMap { doc in
-                    try? doc.data(as: Habit.self)
-                } ?? []
-            }
-    }
-    
-    func addHabit(title: String, icon: String, color: String, goal: Double) {
-        let newHabit = Habit(
-            title: title,
-            icon: icon,
-            color: color,
-            goal: goal,
-            progress: 0,
-            createdAt: Date()
-        )
+        let request: NSFetchRequest<HabitEntity> = HabitEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \HabitEntity.createdAt, ascending: false)]
         
         do {
-            _ = try db.collection("habits").addDocument(from: newHabit)
+            habits = try context.fetch(request)
         } catch {
-            print("Error adding habit: \(error)")
+            print("Error fetching habits: \(error)")
         }
     }
     
-    func toggleHabitCompletion(_ habit: Habit) {
-        guard let habitID = habit.id else { return }
+    func addHabit(title: String, icon: String, color: String, goal: Double, repeatOption: String, days: [String] = []) {
+        let newHabit = HabitEntity(context: context)
+        newHabit.id = UUID()
+        newHabit.title = title
+        newHabit.icon = icon
+        newHabit.color = color
+        newHabit.goal = goal
+        newHabit.progress = 0
+        newHabit.createdAt = Date()
+        newHabit.repeatOption = repeatOption
+        newHabit.days = days as NSObject
+        newHabit.completionHistory = [] as NSObject
         
-        let newProgress = habit.progress >= habit.goal ? 0 : habit.progress + 1
+        saveContext()
+        fetchHabits()
         
-        db.collection("habits").document(habitID).updateData([
-            "progress": newProgress
-        ]) { error in
-            if let error = error {
-                print("Error updating habit: \(error)")
-            } else {
-                DispatchQueue.main.async {
-                    if let index = self.habits.firstIndex(where: { $0.id == habitID }) {
-                        self.habits[index].progress = newProgress
-                    }
-                }
-            }
+    }
+    
+    func deleteHabit(_ habit: HabitEntity) {
+        context.delete(habit)
+        saveContext()
+        fetchHabits()
+    }
+    
+    func toggleHabitCompletion(_ habit: HabitEntity) {
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        var updatedCompletionHistory = (habit.completionHistory as? [Date]) ?? []
+        
+        if updatedCompletionHistory.contains(today) {
+            updatedCompletionHistory.removeAll { $0 == today }
+        } else {
+            updatedCompletionHistory.append(today)
+        }
+        
+        habit.completionHistory = updatedCompletionHistory as NSObject
+        habit.progress = habit.progress + 1
+        
+        saveContext()
+        fetchHabits()
+    }
+    
+    private func saveContext() {
+        do {
+            try context.save()
+        } catch {
+            print("Error saving Core Data: \(error)")
         }
     }
 }
