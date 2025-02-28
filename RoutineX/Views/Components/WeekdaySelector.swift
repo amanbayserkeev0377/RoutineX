@@ -1,10 +1,3 @@
-//
-//  WeekdaySelector.swift
-//  RoutineX
-//
-//  Created by Aman on 28/2/25.
-//
-
 import SwiftUI
 
 struct WeekdaySelector: View {
