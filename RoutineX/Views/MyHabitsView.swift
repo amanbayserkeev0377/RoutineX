@@ -6,6 +6,13 @@ struct MyHabitsView: View {
     @State private var showDatePicker = false
     @State private var showNewHabitView = false
     @State private var showSettings = false
+    @State private var selectedFilter: HabitFilter = .all
+    
+    enum HabitFilter: String, CaseIterable {
+        case all = "All"
+        case active = "Active"
+        case completed = "Completed"
+    }
     
     var formattedDate: String {
         let formatter = DateFormatter()
@@ -13,18 +20,38 @@ struct MyHabitsView: View {
         return formatter.string(from: selectedDate)
     }
     
+    var filteredHabits: [HabitEntity] {
+        switch selectedFilter {
+        case .all:
+            return habitViewModel.habits
+        case .active:
+            return habitViewModel.habits.filter { $0.progress < $0.goal }
+        case .completed:
+            return habitViewModel.habits.filter { $0.progress >= $0.goal }
+        }
+    }
+    
     var body: some View {
         NavigationView {
-            let habits = habitViewModel.habits.filter { $0.id != nil }
-            
             ZStack {
-                List {
-                    ForEach(habits.compactMap { $0.id }, id: \.self) { id in
-                        if let habit = habits.first(where: { $0.id == id }) {
-                            HabitRowView(habit: habit, habitViewModel: habitViewModel)
+                VStack {
+                    Picker("Filter", selection: $selectedFilter) {
+                        ForEach(HabitFilter.allCases, id: \.self) { filter in
+                            Text(filter.rawValue)
                         }
                     }
-                    .onDelete(perform: deleteHabit)
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    List {
+                        ForEach(habitViewModel.habits.compactMap { $0.id }, id: \.self) { id in
+                            if let habit = habitViewModel.habits.first(where: { $0.id == id }) {
+                                HabitRowView(habit: habit, habitViewModel: habitViewModel)
+                                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                            }
+                        }
+                        .onDelete(perform: deleteHabit)
+                    }
+                    .animation(.spring(), value: habitViewModel.habits)
                 }
                 .navigationTitle(formattedDate)
                 .toolbar {
@@ -78,12 +105,12 @@ struct MyHabitsView: View {
     }
 }
 
-
-
-
+// MARK: - HabitRowView
 struct HabitRowView: View {
     let habit: HabitEntity
     let habitViewModel: HabitViewModel
+    
+    @State private var isCompleted: Bool = false
     
     var body: some View {
         HStack {
@@ -103,13 +130,21 @@ struct HabitRowView: View {
             Spacer()
             
             Button(action: {
-                habitViewModel.toggleHabitCompletion(habit)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                    habitViewModel.toggleHabitCompletion(habit)
+                    isCompleted.toggle()
+                }
             }) {
-                Image(systemName: habit.progress >= habit.goal ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(habit.progress >= habit.goal ? .green : .gray)
+                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isCompleted ? .green : .gray)
                     .font(.title2)
+                    .scaleEffect(isCompleted ? 1.2 : 1.0)
+                    .animation(.spring(), value: isCompleted)
             }
         }
         .padding(.vertical, 4)
+        .onAppear {
+            isCompleted = habit.progress >= habit.goal
+        }
     }
 }

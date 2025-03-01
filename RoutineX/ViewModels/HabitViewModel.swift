@@ -8,15 +8,34 @@ class HabitViewModel: ObservableObject {
     
     init(context: NSManagedObjectContext) {
         self.context = context
-        fetchHabits()
+        fetchHabits(for: Date())
     }
     
-    func fetchHabits() {
+    func fetchHabits(for date: Date) {
         let request: NSFetchRequest<HabitEntity> = HabitEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \HabitEntity.createdAt, ascending: false)]
         
         do {
-            habits = try context.fetch(request)
+            let allHabits = try context.fetch(request)
+            let calendar = Calendar.current
+            let weekday = calendar.component(.weekday, from: date)
+            
+            habits = allHabits.filter { habit in
+                guard let repeatOption = habit.repeatOption else { return false }
+                
+                switch repeatOption {
+                case "daily":
+                    return true
+                case "weekly":
+                    return (habit.days as? [String])?.contains(calendar.weekdaySymbols[weekday - 1]) ?? false
+                case "monthly":
+                    return calendar.component(.day, from: habit.createdAt ?? Date()) == calendar.component(.day, from: date)
+                case "custom":
+                    return (habit.days as? [String])?.contains(calendar.weekdaySymbols[weekday - 1]) ?? false
+                default:
+                    return false
+                }
+            }
         } catch {
             print("Error fetching habits: \(error)")
         }
@@ -32,18 +51,18 @@ class HabitViewModel: ObservableObject {
         newHabit.progress = 0
         newHabit.createdAt = Date()
         newHabit.repeatOption = repeatOption
-        newHabit.days = days as NSObject
-        newHabit.completionHistory = [] as NSObject
+        newHabit.days = days as NSArray
+        newHabit.completionHistory = []
         
         saveContext()
-        fetchHabits()
+        fetchHabits(for: Date())
         
     }
     
     func deleteHabit(_ habit: HabitEntity) {
         context.delete(habit)
         saveContext()
-        fetchHabits()
+        fetchHabits(for: Date())
     }
     
     func toggleHabitCompletion(_ habit: HabitEntity) {
@@ -52,16 +71,16 @@ class HabitViewModel: ObservableObject {
         var updatedCompletionHistory = (habit.completionHistory as? [Date]) ?? []
         
         if updatedCompletionHistory.contains(today) {
-            updatedCompletionHistory.removeAll { $0 == today }
+            updatedCompletionHistory = updatedCompletionHistory.filter { $0 != today }
         } else {
             updatedCompletionHistory.append(today)
         }
         
-        habit.completionHistory = updatedCompletionHistory as NSObject
+        habit.completionHistory = updatedCompletionHistory as NSArray
         habit.progress = habit.progress + 1
         
         saveContext()
-        fetchHabits()
+        fetchHabits(for: Date())
     }
     
     private func saveContext() {

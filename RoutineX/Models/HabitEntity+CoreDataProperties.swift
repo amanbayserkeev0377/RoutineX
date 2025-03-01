@@ -9,9 +9,9 @@ extension HabitEntity {
     }
 
     @NSManaged public var color: String?
-    @NSManaged public var completionHistory: NSObject?
+    @NSManaged public var completionHistory: NSArray
     @NSManaged public var createdAt: Date?
-    @NSManaged public var days: NSObject?
+    @NSManaged public var days: NSArray
     @NSManaged public var goal: Double
     @NSManaged public var icon: String?
     @NSManaged public var id: UUID?
