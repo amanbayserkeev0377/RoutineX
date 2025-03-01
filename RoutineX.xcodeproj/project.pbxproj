@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0777EEAC2D735D3300B7773A /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 0777EEAB2D735D3300B7773A /* FSCalendar */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		07B464442D6DEC4E009B7C39 /* RoutineX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0777EEAC2D735D3300B7773A /* FSCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = RoutineX;
 			packageProductDependencies = (
+				0777EEAB2D735D3300B7773A /* FSCalendar */,
 			);
 			productName = RoutineX;
 			productReference = 07B464442D6DEC4E009B7C39 /* RoutineX.app */;
@@ -95,6 +101,7 @@
 			mainGroup = 07B4643B2D6DEC4E009B7C39;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				0777EEAA2D735D3300B7773A /* XCRemoteSwiftPackageReference "FSCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 07B464452D6DEC4E009B7C39 /* Products */;
@@ -326,6 +333,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0777EEAA2D735D3300B7773A /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0777EEAB2D735D3300B7773A /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0777EEAA2D735D3300B7773A /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 07B4643C2D6DEC4E009B7C39 /* Project object */;
 }

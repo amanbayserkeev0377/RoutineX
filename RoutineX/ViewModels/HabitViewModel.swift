@@ -30,8 +30,6 @@ class HabitViewModel: ObservableObject {
                     return (habit.days as? [String])?.contains(calendar.weekdaySymbols[weekday - 1]) ?? false
                 case "monthly":
                     return calendar.component(.day, from: habit.createdAt ?? Date()) == calendar.component(.day, from: date)
-                case "custom":
-                    return (habit.days as? [String])?.contains(calendar.weekdaySymbols[weekday - 1]) ?? false
                 default:
                     return false
                 }

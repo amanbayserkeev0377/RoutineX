@@ -46,6 +46,10 @@ struct NewHabitView: View {
     @State private var customColor: Color = .black
     @State private var repeatOption: RepeatOption = .daily
     @State private var selectedDays: Set<Weekday> = []
+    @State private var selectedMonthDays: Set<Int> = []
+    
+    @State private var goalValue: String = ""
+    @State private var goalUnit: String = ""
     
     @FocusState private var isTextFieldFocused: Bool
     
@@ -58,6 +62,7 @@ struct NewHabitView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
+                
                 // Emoji Picker
                 EmojiTextField(text: $selectedEmoji)
                     .frame(width: 80, height: 80)
@@ -75,7 +80,18 @@ struct NewHabitView: View {
                     .focused($isTextFieldFocused)
                     .onSubmit { isTextFieldFocused = false }
                 
-                // Choose color
+                // Goal Value
+                HStack {
+                    TextField("Goal Value", text: $goalValue)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    TextField("Unit (e.g., min, km, times", text: $goalUnit)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                .padding(.horizontal)
+                
+                // Color Picker
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
                         ForEach(colors, id: \ .self) { color in
@@ -95,7 +111,6 @@ struct NewHabitView: View {
                         Text("Every day").tag(RepeatOption.daily)
                         Text("Every week").tag(RepeatOption.weekly)
                         Text("Every month").tag(RepeatOption.monthly)
-                        Text("Custom").tag(RepeatOption.custom)
                     }
                     .pickerStyle(.menu)
                 }
@@ -105,8 +120,13 @@ struct NewHabitView: View {
                 .padding(.horizontal)
                 
                 // Weekday selection
-                if repeatOption == .custom {
+                if repeatOption == .weekly {
                     WeekdaySelector(selectedDays: $selectedDays)
+                        .padding(.horizontal)
+                }
+                
+                if repeatOption == .monthly {
+                    MonthDaySelector(selectedDays: $selectedMonthDays)
                         .padding(.horizontal)
                 }
                 
@@ -197,12 +217,11 @@ struct NewHabitView: View {
             habit.repeatOption = repeatOption.rawValue
             habit.days = selectedDays.map { $0.rawValue } as NSArray
         } else {
-            
             habitViewModel.addHabit(
                 title: habitName,
                 icon: selectedEmoji,
                 color: selectedColor?.toHex() ?? "",
-                goal: 1,
+                goal: Double(goalValue) ?? 1,
                 repeatOption: repeatOption.rawValue,
                 days: selectedDays.map { $0.rawValue }
             )
