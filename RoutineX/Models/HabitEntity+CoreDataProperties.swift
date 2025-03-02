@@ -18,6 +18,7 @@ extension HabitEntity {
     @NSManaged public var progress: Double
     @NSManaged public var repeatOption: String?
     @NSManaged public var title: String?
+    @NSManaged public var progressValue: Double
 
 }
 

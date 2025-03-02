@@ -5,6 +5,8 @@ struct HabitRowView: View {
     let habitViewModel: HabitViewModel
     
     @State private var isCompleted: Bool = false
+    @State private var showProgressInput = false
+    @State private var enteredProgress: String = ""
     
     var body: some View {
         HStack {
@@ -21,23 +23,18 @@ struct HabitRowView: View {
                         .font(.headline)
                 }
 
-                Text(isCompleted ? "Completed today" : "Not completed today")
+                Text("Completed: \(habit.progressValue, specifier: "%.1f") \(habit.goal > 0 ? "/ \(habit.goal)" : "")")
                     .font(.subheadline)
                     .foregroundStyle(.gray)
             }
             Spacer()
 
             Button(action: {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                    habitViewModel.toggleHabitCompletion(habit)
-                    isCompleted.toggle()
-                }
+                showProgressInput = true
             }) {
-                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isCompleted ? .green : .gray)
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(.blue)
                     .font(.title2)
-                    .scaleEffect(isCompleted ? 1.2 : 1.0)
-                    .animation(.spring(), value: isCompleted)
             }
             .padding(.trailing, 10)
         }
@@ -45,23 +42,16 @@ struct HabitRowView: View {
         .onAppear {
             isCompleted = isHabitCompletedToday()
         }
-        .swipeActions(edge: .trailing) {
-            Button(role: .destructive) {
-                habitViewModel.deleteHabit(habit)
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
         .swipeActions(edge: .leading) {
             Button {
-                withAnimation {
-                    habitViewModel.toggleHabitCompletion(habit)
-                    isCompleted.toggle()
-                }
+                showProgressInput = true
             } label: {
-                Label(isCompleted ? "Undo" : "Complete", systemImage: isCompleted ? "arrow.uturn.backward.circle" : "checkmark.circle")
+                Label("Add Progress", systemImage: "plus")
             }
-            .tint(isCompleted ? .gray : .green)
+            .tint(.blue)
+        }
+        .sheet(isPresented: $showProgressInput) {
+            ProgressInputView(habit: habit, habitViewModel: habitViewModel, isPresented: $showProgressInput)
         }
     }
     

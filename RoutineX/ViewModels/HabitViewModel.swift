@@ -57,6 +57,16 @@ class HabitViewModel: ObservableObject {
         
     }
     
+    func addProgress(to habit: HabitEntity, value: Double) {
+        habit.progressValue += value
+        if habit.progressValue >= habit.goal {
+            habit.progressValue = habit.goal
+        }
+        
+        saveContext()
+        fetchHabits(for: Date())
+    }
+    
     func deleteHabit(_ habit: HabitEntity) {
         context.delete(habit)
         saveContext()
