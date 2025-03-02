@@ -57,11 +57,13 @@ class HabitViewModel: ObservableObject {
         
     }
     
-    func addProgress(to habit: HabitEntity, value: Double) {
-        habit.progressValue += value
-        if habit.progressValue >= habit.goal {
-            habit.progressValue = habit.goal
-        }
+    func updateHabit(_ habit: HabitEntity, title: String, icon: String, color: String, goal: Double, repeatOption: String, days: [String]) {
+        habit.title = title
+        habit.icon = icon
+        habit.color = color
+        habit.goal = goal
+        habit.repeatOption = repeatOption
+        habit.days = days as NSArray
         
         saveContext()
         fetchHabits(for: Date())
@@ -69,6 +71,16 @@ class HabitViewModel: ObservableObject {
     
     func deleteHabit(_ habit: HabitEntity) {
         context.delete(habit)
+        saveContext()
+        fetchHabits(for: Date())
+    }
+    
+    func addProgress(to habit: HabitEntity, value: Double) {
+        habit.progressValue += value
+        if habit.progressValue >= habit.goal {
+            habit.progressValue = habit.goal
+        }
+        
         saveContext()
         fetchHabits(for: Date())
     }

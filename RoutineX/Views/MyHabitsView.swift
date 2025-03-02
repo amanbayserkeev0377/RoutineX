@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct MyHabitsView: View {
     @EnvironmentObject var habitViewModel: HabitViewModel
     @State private var selectedDate = Date()
@@ -72,6 +71,9 @@ struct MyHabitsView: View {
         }
         .sheet(item: $selectedHabit) { habit in
             HabitStatisticsView(habit: habit)
+        }
+        .onDisappear {
+            selectedHabit = nil
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()

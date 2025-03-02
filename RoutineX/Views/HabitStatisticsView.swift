@@ -5,6 +5,7 @@ struct HabitStatisticsView: View {
     let habit: HabitEntity
     @Environment(\.dismiss) private var dismiss
     @State private var completedDates: Set<Date> = []
+    @State private var showEditHabitView = false
     
     private var currentStreak: Int {
         calculateStreak(dates: completedDates)
@@ -35,9 +36,15 @@ struct HabitStatisticsView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Close") { dismiss() }
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Edit") { showEditHabitView = true }
+                    }
                 }
                 .onAppear {
                     loadCompletedDates()
+                }
+                .sheet(isPresented: $showEditHabitView) {
+                    NewHabitView(habitToEdit: habit)
                 }
         }
     }
