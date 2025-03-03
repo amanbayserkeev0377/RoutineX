@@ -8,14 +8,18 @@ struct TimePickerView: View {
         NavigationView {
             VStack {
                 DatePicker("", selection: Binding(get: {
-                    Date(timeIntervalSince1970: selectedTime)
+                    timeToDate()
                 }, set: { newDate in
-                    selectedTime = newDate.timeIntervalSince1970
+                    selectedTime = dateToTimeInterval(newDate)
                 }), displayedComponents: [.hourAndMinute])
                 .datePickerStyle(.wheel)
                 .labelsHidden()
                 .padding()
-                
+                .onAppear {
+                    if selectedTime == 0 {
+                        selectedTime = 0
+                    }
+                }
                 Spacer()
             }
             .navigationTitle("Select Time")
@@ -28,5 +32,18 @@ struct TimePickerView: View {
                 }
             }
         }
+    }
+    
+    private func timeToDate() -> Date {
+        let calendar = Calendar.current
+        let components = DateComponents(hour: Int(selectedTime) / 3600, minute: (Int(selectedTime) % 3600) / 60)
+        return calendar.date(from: components) ?? Date()
+    }
+    
+    private func dateToTimeInterval(_ date: Date) -> TimeInterval {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: date)
+        let timeInterval = TimeInterval((components.hour ?? 0) * 3600 + (components.minute ?? 0) * 60)
+        return max(timeInterval, 0)
     }
 }

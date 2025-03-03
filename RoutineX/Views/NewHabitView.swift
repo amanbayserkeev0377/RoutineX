@@ -19,14 +19,15 @@ struct NewHabitView: View {
     @State private var selectedDays: Set<Weekday> = []
     @State private var selectedMonthDays: Set<Int> = []
     
-    @State private var goalValue: Int = 1
+    @State private var goalValue: Double = 1
+    @State private var goalValueString: String = "1"
     @State private var goalUnit: GoalUnit = .count
     @State private var customUnit: String = ""
     @State private var timeGoal: TimeInterval = 0
     @State private var showTimePicker = false
     
     @FocusState private var isTextFieldFocused: Bool
-        
+    
     var isDoneButtonEnabled: Bool {
         return !habitName.isEmpty
     }
@@ -56,6 +57,9 @@ struct NewHabitView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
                 
+                // Color Picker
+                ColorPickerView(selectedColor: $selectedColor)
+                
                 // Goal Section
                 VStack(spacing: 10) {
                     Text("Goal")
@@ -63,21 +67,26 @@ struct NewHabitView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                     
-                    // Count and Time
-                    if goalUnit == .count {
+                    // Enter Value (Count & Custom Unit)
+                    if goalUnit == .count || goalUnit == .custom {
                         HStack {
                             Text("Enter value")
                             Spacer()
+                            TextField("0", text: $goalValueString)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
                             Stepper("", value: $goalValue, in: 1...100)
                                 .labelsHidden()
-                            Text("\(goalValue) times")
-                                .foregroundStyle(.gray)
                         }
                         .padding()
                         .background(Color(.systemGray6))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .padding(.horizontal)
-                    } else if goalUnit == .time {
+                    }
+                    
+                    // Time Picker
+                    if goalUnit == .time {
                         Button(action: { showTimePicker.toggle() }) {
                             HStack {
                                 Text("Enter value")
@@ -90,9 +99,44 @@ struct NewHabitView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .padding(.horizontal)
+                        .sheet(isPresented: $showTimePicker) {
+                            TimePickerView(selectedTime: $timeGoal)
+                                .presentationDetents([.medium])
+                        }
                     }
                     
-                    // Unit
+                    // Custom Unit
+                    if goalUnit == .custom {
+                        HStack {
+                            Text("Enter value")
+                            Spacer()
+                            TextField("0", text: $goalValueString)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
+                            Stepper("", value: $goalValue, in: 1...100)
+                                .labelsHidden()
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .padding(.horizontal)
+                        
+                        // Enter custom unit
+                        HStack {
+                            Text("Enter custom unit")
+                            Spacer()
+                            TextField("km, pages", text: $customUnit)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 100)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .padding(.horizontal)
+                    }
+                    
+                    // Unit Picker
                     HStack {
                         Text("Unit")
                         Spacer()
@@ -107,25 +151,7 @@ struct NewHabitView: View {
                     .background(Color(.systemGray6))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .padding(.horizontal)
-                    
-                    // 🔴 Custom Unit
-                    if goalUnit == .custom {
-                        HStack {
-                            Text("Enter custom unit")
-                            Spacer()
-                            TextField("e.g., km, pages", text: $customUnit)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(width: 100)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .padding(.horizontal)
-                    }
                 }
-                
-                // Color Picker
-                ColorPickerView(selectedColor: $selectedColor)
                 
                 // Repeat
                 HStack {
@@ -176,21 +202,21 @@ struct NewHabitView: View {
                     selectedColor = Color(hex: habit.color ?? "")
                     repeatOption = RepeatOption(rawValue: habit.repeatOption ?? "daily") ?? .daily
                     selectedDays = Set((habit.days).compactMap { Weekday(rawValue: $0 as! String) })
-                    goalValue = Int(habit.goal)
+                    goalValue = Double(habit.goal)
                 }
             }
         }
     }
-
+    
     
     private func saveHabit() {
         guard !habitName.isEmpty else { return }
-
+        
+        goalValue = Double(goalValueString.replacingOccurrences(of: ",", with: ".")) ?? 0
         let goal: Double = goalUnit == .time ? timeGoal / 60 : Double(goalValue)
-        let unitString = goalUnit == .custom ? customUnit : goalUnit.rawValue
         let colorHex = selectedColor?.toHex() ?? ""
         let daysArray = selectedDays.map { $0.rawValue }
-
+        
         if let habit = habitToEdit {
             habitViewModel.updateHabit(
                 habit,
