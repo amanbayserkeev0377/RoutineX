@@ -20,7 +20,7 @@ struct NewHabitView: View {
     @State private var selectedMonthDays: Set<Int> = []
     
     @State private var goalValue: Double = 1
-    @State private var goalValueString: String = "1"
+    @State private var goalValueString: String = ""
     @State private var goalUnit: GoalUnit = .count
     @State private var customUnit: String = ""
     @State private var timeGoal: TimeInterval = 0
@@ -45,8 +45,12 @@ struct NewHabitView: View {
                 // Emoji Picker
                 EmojiTextField(text: $selectedEmoji)
                     .frame(width: 80, height: 80)
-                    .background((selectedColor ?? .gray).opacity(0.2))
+                    .background(Color(.systemGray5))
                     .clipShape(Circle())
+                    .overlay(
+                        Text(selectedEmoji.isEmpty ? "📚" : selectedEmoji)
+                            .font(.system(size: 40))
+                    )
                     .padding(.top, 10)
                 
                 // Habit name
@@ -76,8 +80,13 @@ struct NewHabitView: View {
                                 .keyboardType(.decimalPad)
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 80)
-                            Stepper("", value: $goalValue, in: 1...100)
+                            
+                            if goalUnit == .count {
+                                Stepper("", value: $goalValue, in: 1...100, step: 1, onEditingChanged: { _ in
+                                    goalValueString = "\(Int(goalValue))"
+                                })
                                 .labelsHidden()
+                            }
                         }
                         .padding()
                         .background(Color(.systemGray6))
@@ -107,22 +116,6 @@ struct NewHabitView: View {
                     
                     // Custom Unit
                     if goalUnit == .custom {
-                        HStack {
-                            Text("Enter value")
-                            Spacer()
-                            TextField("0", text: $goalValueString)
-                                .keyboardType(.decimalPad)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 80)
-                            Stepper("", value: $goalValue, in: 1...100)
-                                .labelsHidden()
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .padding(.horizontal)
-                        
-                        // Enter custom unit
                         HStack {
                             Text("Enter custom unit")
                             Spacer()
@@ -204,6 +197,7 @@ struct NewHabitView: View {
                     selectedDays = Set((habit.days).compactMap { Weekday(rawValue: $0 as! String) })
                     goalValue = Double(habit.goal)
                 }
+                goalValueString = "\(Int(goalValue))"
             }
         }
     }
