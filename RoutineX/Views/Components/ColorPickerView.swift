@@ -27,10 +27,13 @@ struct ColorPickerView: View {
                     .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 0)
             )
             .onTapGesture {
-                selectedColor = color
+                DispatchQueue.main.async {
+                    selectedColor = color
+                    print("Color selected: \(color.toHex())") // LOG
+                }
             }
     }
-
+    
     private func customColorCircle() -> some View {
         return ZStack {
             Circle()
