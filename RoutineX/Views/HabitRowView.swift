@@ -18,6 +18,9 @@ struct HabitRowView: View {
                     if let icon = icon {
                         Text(icon)
                             .font(.title2)
+                            .padding(10)
+                            .background(Color(hex: habit.color ?? "007AFF"))
+                            .clipShape(Circle())
                     }
                     Text(title)
                         .font(.headline)

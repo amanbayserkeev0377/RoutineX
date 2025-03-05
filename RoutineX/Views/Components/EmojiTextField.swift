@@ -13,8 +13,12 @@ struct EmojiTextField: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UITextField, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
+        DispatchQueue.main.async {
+            if self.text != uiView.text, let newText = uiView.text, !newText.isEmpty {
+                self.text = newText
+                context.coordinator.parent.text = newText
+                print("Emoji updated:", self.text) // LOG
+            }
         }
     }
     
@@ -31,16 +35,21 @@ struct EmojiTextField: UIViewRepresentable {
         
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
             if string.isEmpty {
-                parent.text = ""
+                DispatchQueue.main.async {
+                    self.parent.text = ""
+                }
                 return true
             }
             
             if string.count == 1, string.unicodeScalars.first?.properties.isEmoji == true {
-                parent.text = string
+                DispatchQueue.main.async {
+                    self.parent.text = string
+                }
                 return false
             }
             return false
         }
+        
     }
 }
 

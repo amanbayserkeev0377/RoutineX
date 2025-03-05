@@ -42,19 +42,25 @@ struct NewHabitView: View {
         NavigationView {
             VStack(spacing: 20) {
                 
-                // Emoji Picker
-                EmojiTextField(text: $selectedEmoji)
-                    .onChange(of: selectedEmoji) {
-                        print("Selected emoji changed: \(selectedEmoji)") // LOG
-                    }
-                    .frame(width: 80, height: 80)
-                    .background(Color(.systemGray5))
-                    .clipShape(Circle())
-                    .overlay(
-                        Text(selectedEmoji.isEmpty ? "📚" : selectedEmoji)
+                // Emoji Picker + Background Color
+                ZStack {
+                    Circle()
+                        .fill(selectedColor ?? Color(.systemGray5))
+                        .frame(width: 80, height: 80)
+                    
+                    EmojiTextField(text: $selectedEmoji)
+                        .frame(width: 80, height: 80)
+                        .multilineTextAlignment(.center)
+                    
+                    if selectedEmoji.isEmpty {
+                        Text("📚")
                             .font(.system(size: 40))
-                    )
-                    .padding(.top, 10)
+                    } else {
+                        Text(selectedEmoji)
+                            .font(.system(size: 40))
+                    }
+                }
+                .padding(.top, 10)
                 
                 // Habit name
                 TextField("Habit Name", text: $habitName)
@@ -66,10 +72,7 @@ struct NewHabitView: View {
                 
                 // Color Picker
                 ColorPickerView(selectedColor: $selectedColor)
-                    .onChange(of: selectedColor) {
-                        print("Selected color changed!")
-                    }
-                
+
                 // Goal Section
                 VStack(spacing: 10) {
                     Text("Goal")
@@ -198,15 +201,14 @@ struct NewHabitView: View {
                 if let habit = habitToEdit {
                     habitName = habit.title ?? ""
                     selectedEmoji = habit.icon ?? ""
-                    selectedColor = Color(hex: habit.color ?? "")
+                    selectedColor = habit.color != nil ? Color(hex: habit.color!) : Color(.systemGray5)
                     repeatOption = RepeatOption(rawValue: habit.repeatOption ?? "daily") ?? .daily
                     selectedDays = Set((habit.days).compactMap { Weekday(rawValue: $0 as! String) })
                     goalValue = Double(habit.goal)
+                } else {
+                    selectedColor = Color(.systemGray5)
                 }
-                
-                if selectedColor == nil {
-                    selectedColor = .blue
-                }
+                print("Loaded selectedColor:", selectedColor?.toHex() ?? "nil") // LOG
                 goalValueString = "\(Int(goalValue))"
             }
         }
@@ -218,8 +220,9 @@ struct NewHabitView: View {
         
         goalValue = Double(goalValueString.replacingOccurrences(of: ",", with: ".")) ?? 0
         let goal: Double = goalUnit == .time ? timeGoal / 60 : Double(goalValue)
-        let colorHex = selectedColor?.toHex() ?? ""
+        let colorHex = selectedColor?.toHex() ?? "007AFF"
         print("Saving habit with color: \(colorHex)") // LOG
+        print("Saving habit with emoji: \(selectedEmoji)") // LOG
         let daysArray = selectedDays.map { $0.rawValue }
         
         if let habit = habitToEdit {
