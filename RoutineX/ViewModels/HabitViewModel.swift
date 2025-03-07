@@ -91,13 +91,12 @@ class HabitViewModel: ObservableObject {
         var updatedCompletionHistory = (habit.completionHistory as? [Date]) ?? []
         
         if updatedCompletionHistory.contains(today) {
-            updatedCompletionHistory = updatedCompletionHistory.filter { $0 != today }
+            updatedCompletionHistory.removeAll { $0 == today }
         } else {
             updatedCompletionHistory.append(today)
         }
         
         habit.completionHistory = updatedCompletionHistory as NSArray
-        habit.progress = habit.progress + 1
         
         saveContext()
         fetchHabits(for: Date())

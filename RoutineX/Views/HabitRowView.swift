@@ -5,58 +5,41 @@ struct HabitRowView: View {
     let habitViewModel: HabitViewModel
     
     @State private var isCompleted: Bool = false
-    @State private var showProgressInput = false
-    @State private var enteredProgress: String = ""
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
-                let title = habit.title ?? "Untitled Habit"
-                let icon = (habit.icon?.isEmpty == false) ? habit.icon! : nil
-
-                HStack {
-                    if let icon = icon {
-                        Text(icon)
-                            .font(.title2)
-                            .padding(10)
-                            .background(Color(hex: habit.color ?? "007AFF"))
-                            .clipShape(Circle())
-                    }
-                    Text(title)
-                        .font(.headline)
-                }
-
-                Text("Completed: \(habit.progressValue, specifier: "%.1f") \(habit.goal > 0 ? "/ \(habit.goal)" : "")")
-                    .font(.subheadline)
-                    .foregroundStyle(.gray)
-            }
-            Spacer()
-
-            Button(action: {
-                showProgressInput = true
-            }) {
-                Image(systemName: "plus.circle.fill")
-                    .foregroundStyle(.blue)
+            if let icon = habit.icon, !icon.isEmpty {
+                Text(icon)
                     .font(.title2)
+                    .padding(10)
+                    .background(Color(hex: habit.color ?? "007AFF"))
+                    .clipShape(Circle())
             }
-            .padding(.trailing, 10)
+            
+            Text(habit.title ?? "Untitled habit")
+                .font(.headline)
+            
+            Spacer()
+            
+            Circle()
+                .fill(isCompleted ? Color(hex: habit.color ?? "007AFF") : Color(.systemGray5))
+                .frame(width: 24, height: 24)
+                .onTapGesture {
+                    habitViewModel.toggleHabitCompletion(habit)
+                    isCompleted.toggle()
+                }
         }
+        .contentShape(Rectangle())
+        .buttonStyle(PlainButtonStyle())
         .padding(.vertical, 4)
         .onAppear {
             isCompleted = isHabitCompletedToday()
         }
-        .swipeActions(edge: .leading) {
-            Button {
-                showProgressInput = true
-            } label: {
-                Label("Add Progress", systemImage: "plus")
-            }
-            .tint(.blue)
-        }
-        .sheet(isPresented: $showProgressInput) {
-            ProgressInputView(habit: habit, habitViewModel: habitViewModel, isPresented: $showProgressInput)
+        .onChange(of: habit.completionHistory) {
+            isCompleted = isHabitCompletedToday()
         }
     }
+    
     
     private func isHabitCompletedToday() -> Bool {
         let today = Calendar.current.startOfDay(for: Date())

@@ -19,15 +19,10 @@ struct MyHabitsView: View {
             ZStack {
                 VStack {
                     List {
-                        ForEach(habitViewModel.habits.compactMap { $0.id }, id: \.self) { id in
-                            if let habit = habitViewModel.habits.first(where: { $0.id == id }) {
-                                HabitRowView(habit: habit, habitViewModel: habitViewModel)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectedHabit = habit
-                                    }
-                                    .transition(.move(edge: .trailing).combined(with: .opacity))
-                            }
+                        ForEach(habitViewModel.habits, id: \.self) { habit in
+                            HabitRowView(habit: habit, habitViewModel: habitViewModel)
+                                .contentShape(Rectangle())
+                                .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                         .onDelete(perform: deleteHabit)
                     }
@@ -68,9 +63,6 @@ struct MyHabitsView: View {
         }
         .sheet(isPresented: $showNewHabitView) {
             NewHabitView()
-        }
-        .sheet(item: $selectedHabit) { habit in
-            HabitStatisticsView(habit: habit)
         }
         .onDisappear {
             selectedHabit = nil
