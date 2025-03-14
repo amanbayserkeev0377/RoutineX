@@ -1,0 +1,39 @@
+# macOS system files
+.DS_Store
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcworkspace
+*.xcscmblueprint
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/xcshareddata/
+
+# Swift Package Manager
+/.build/
+/Packages/
+/Package.resolved
+*.swiftpm/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Environment files
+*.xcconfig
+*.env
+*.pem
+*.cer
+*.mobileprovision
+GoogleService-Info.plist
+config.json
