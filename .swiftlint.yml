@@ -1,0 +1,18 @@
+disabled_rules:
+  - trailing_whitespace
+  - force_cast
+  - force_unwrapping
+
+opt_in_rules:
+  - empty_count
+  - explicit_init
+  - vertical_parameter_alignment
+
+included:
+  - RoutineX
+
+excluded:
+  - RoutineXTests
+  - RoutineXUITests
+
+line_length: 120

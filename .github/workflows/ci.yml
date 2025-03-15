@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Select Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
+      - name: Install dependencies
+        run: |
+          brew install swiftlint
+          gem install cocoapods
+          pod install --project-directory=RoutineX || true
+
+      - name: Run SwiftLint
+        run: swiftlint --strict
+
+      - name: Build and Test
+        run: |
+          xcodebuild test \
+            -scheme RoutineX \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            CODE_SIGNING_ALLOWED=NO
