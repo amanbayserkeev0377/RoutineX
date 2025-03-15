@@ -29,5 +29,5 @@ jobs:
         run: |
           xcodebuild test \
             -scheme RoutineX \
-            -destination 'platform=iOS Simulator,name=iPhone 14' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
             CODE_SIGNING_ALLOWED=NO
