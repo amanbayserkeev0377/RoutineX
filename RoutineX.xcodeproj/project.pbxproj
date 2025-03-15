@@ -34,8 +34,26 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Tests/RoutineXTests/RoutineXTests.swift,
+				Tests/RoutineXUITests/RoutineXUITests.swift,
+				Tests/RoutineXUITests/RoutineXUITestsLaunchTests.swift,
 			);
 			target = 0777C7E12D84A5C4000FAB30 /* RoutineX */;
+		};
+		0777C81D2D851D5F000FAB30 /* Exceptions for "RoutineX" folder in "RoutineXTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/RoutineXTests/RoutineXTests.swift,
+			);
+			target = 0777C7F52D84A5C7000FAB30 /* RoutineXTests */;
+		};
+		0777C81E2D851D5F000FAB30 /* Exceptions for "RoutineX" folder in "RoutineXUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Tests/RoutineXUITests/RoutineXUITests.swift,
+				Tests/RoutineXUITests/RoutineXUITestsLaunchTests.swift,
+			);
+			target = 0777C7FF2D84A5C7000FAB30 /* RoutineXUITests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -44,18 +62,10 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				0777C8082D84A5C7000FAB30 /* Exceptions for "RoutineX" folder in "RoutineX" target */,
+				0777C81D2D851D5F000FAB30 /* Exceptions for "RoutineX" folder in "RoutineXTests" target */,
+				0777C81E2D851D5F000FAB30 /* Exceptions for "RoutineX" folder in "RoutineXUITests" target */,
 			);
 			path = RoutineX;
-			sourceTree = "<group>";
-		};
-		0777C7F92D84A5C7000FAB30 /* RoutineXTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RoutineXTests;
-			sourceTree = "<group>";
-		};
-		0777C8032D84A5C7000FAB30 /* RoutineXUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RoutineXUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -89,8 +99,6 @@
 			isa = PBXGroup;
 			children = (
 				0777C7E42D84A5C4000FAB30 /* RoutineX */,
-				0777C7F92D84A5C7000FAB30 /* RoutineXTests */,
-				0777C8032D84A5C7000FAB30 /* RoutineXUITests */,
 				0777C7E32D84A5C4000FAB30 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -143,9 +151,6 @@
 			dependencies = (
 				0777C7F82D84A5C7000FAB30 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				0777C7F92D84A5C7000FAB30 /* RoutineXTests */,
-			);
 			name = RoutineXTests;
 			packageProductDependencies = (
 			);
@@ -165,9 +170,6 @@
 			);
 			dependencies = (
 				0777C8022D84A5C7000FAB30 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				0777C8032D84A5C7000FAB30 /* RoutineXUITests */,
 			);
 			name = RoutineXUITests;
 			packageProductDependencies = (
