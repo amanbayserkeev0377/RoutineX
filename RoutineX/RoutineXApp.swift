@@ -1,5 +1,3 @@
-//
-
 import SwiftUI
 import SwiftData
 
@@ -7,7 +5,7 @@ import SwiftData
 struct RoutineXApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Habit.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -20,7 +18,7 @@ struct RoutineXApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TodayView()
         }
         .modelContainer(sharedModelContainer)
     }
