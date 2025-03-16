@@ -7,6 +7,7 @@ final class ReminderToggleViewTests: XCTestCase {
     var container: ModelContainer!
     var context: ModelContext!
     
+    @MainActor
     override func setUp() {
         super.setUp()
         let schema = Schema([Habit.self])
@@ -14,13 +15,14 @@ final class ReminderToggleViewTests: XCTestCase {
         context = ModelContext(container)
     }
     
+    @MainActor
     override func tearDown() {
         container = nil
         context = nil
         super.tearDown()
     }
     
-    func testToggleReminderEnablesTime() {
+    func testToggleReminderEnablesTime() async {
         // Arrange
         let habit = Habit(name: "Test", unit: "count", goalValue: 1, isCompleted: false, createdAt: Date())
         context.insert(habit)
@@ -28,7 +30,13 @@ final class ReminderToggleViewTests: XCTestCase {
         // Act
         habit.reminderTime = Date()
         
-        XCTAssertNoThrow(try context.save(), "Saving context should not throw an error")
+        await Task { @MainActor in
+            do {
+                try SwiftDataManager.shared.context.save()
+            } catch {
+                XCTFail("Saving context threw an error: \(error.localizedDescription)")
+            }
+        }.value
         
         // Assert
         XCTAssertNotNil(habit.reminderTime, "Reminder time should be set when toggle is enabled")

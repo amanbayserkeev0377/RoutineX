@@ -9,10 +9,21 @@ final class SwiftDataManager {
     let modelContainer: ModelContainer
     let context: ModelContext
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.app.SwiftDataManager",
-                                category: "DataManager")
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.app.SwiftDataManager",
+        category: "DataManager"
+    )
     
     private init() {
+        let fileManager = FileManager.default
+        if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let databaseURL = appSupport.appendingPathComponent("default.store")
+            
+            if !fileManager.fileExists(atPath: databaseURL.path) {
+                try? fileManager.createDirectory(at: appSupport, withIntermediateDirectories: true)
+            }
+        }
+
         do {
             let schema = Schema([Habit.self])
             let config = ModelConfiguration(schema: schema)
@@ -20,9 +31,7 @@ final class SwiftDataManager {
             self.context = modelContainer.mainContext
         } catch {
             logger.error("Failed to initialize SwiftData: \(error.localizedDescription)")
-#if DEBUG
             fatalError("SwiftData init failed: \(error.localizedDescription)")
-#endif
         }
     }
     
@@ -64,6 +73,11 @@ final class SwiftDataManager {
         habit.unit = unit
         habit.goalValue = goalValue
         habit.isCompleted = isCompleted
+        saveContext()
+    }
+    
+    func updateHabitDays(_ habit: Habit, activeDays: [String]) {
+        habit.activeDays = activeDays
         saveContext()
     }
     
