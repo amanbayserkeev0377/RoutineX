@@ -14,8 +14,9 @@ final class SwiftDataManager {
     
     private init() {
         do {
-            let config = ModelConfiguration(for: Habit.self)
-            self.modelContainer = try ModelContainer(for: Habit.self, configurations: config)
+            let schema = Schema([Habit.self])
+            let config = ModelConfiguration(schema: schema)
+            self.modelContainer = try ModelContainer(for: schema, configurations: [config])
             self.context = modelContainer.mainContext
         } catch {
             logger.error("Failed to initialize SwiftData: \(error.localizedDescription)")
@@ -23,6 +24,11 @@ final class SwiftDataManager {
             fatalError("SwiftData init failed: \(error.localizedDescription)")
 #endif
         }
+    }
+    
+    init(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
+        self.context = modelContainer.mainContext
     }
     
     // MARK: - CRUD Operations
