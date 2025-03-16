@@ -1,6 +1,6 @@
-import SwiftData
 import Foundation
 import OSLog
+import SwiftData
 
 @MainActor
 final class SwiftDataManager {

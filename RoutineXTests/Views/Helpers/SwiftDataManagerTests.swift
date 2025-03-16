@@ -3,7 +3,7 @@ import SwiftData
 @testable import RoutineX
 
 @MainActor
-final class RoutineXTests: XCTestCase {
+final class SwiftDataManagerTests: XCTestCase {
 
     var manager: SwiftDataManager!
     var container: ModelContainer!
