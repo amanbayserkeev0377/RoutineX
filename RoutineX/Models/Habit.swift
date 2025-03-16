@@ -3,9 +3,17 @@ import SwiftData
 
 @Model
 final class Habit {
-    var timestamp: Date
+    var name: String
+    var unit: String
+    var goalValue: Int
+    var isCompleted: Bool
+    var createdAt: Date
     
-    init(timestamp: Date) {
-        self.timestamp = timestamp
+    init(name: String, unit: String, goalValue: Int, isCompleted: Bool, createdAt: Date) {
+        self.name = name
+        self.unit = unit
+        self.goalValue = goalValue
+        self.isCompleted = isCompleted
+        self.createdAt = createdAt
     }
 }
