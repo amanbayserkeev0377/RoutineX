@@ -14,20 +14,25 @@ struct ReminderToggleView: View {
                 Toggle("", isOn: Binding(
                     get: { habit.reminderTime != nil },
                     set: { newValue in
-                        habit.reminderTime = newValue ? Date() : nil
+                        if newValue {
+                            let newTime = Date()
+                            habit.reminderTime = newTime
+                            SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: newTime)
+                        } else {
+                            habit.reminderTime = nil
+                            SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: nil)
+                        }
                     }
                 ))
                 .labelsHidden()
             }
             .padding()
             .background(.ultraThinMaterial)
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             
             if habit.reminderTime != nil {
                 Button(
-                    action: {
-                        isTimePickerPresented = true
-                    },
+                    action: { isTimePickerPresented = true },
                     label: {
                         HStack {
                             Spacer()
@@ -41,7 +46,7 @@ struct ReminderToggleView: View {
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
                             .background(Color(.systemGray6))
-                            .cornerRadius(8)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
                 )
@@ -50,7 +55,10 @@ struct ReminderToggleView: View {
                     content: {
                         TimePickerView(selectedTime: Binding<Date>(
                             get: { habit.reminderTime ?? Date() },
-                            set: { habit.reminderTime = $0 }
+                            set: { newTime in
+                                habit.reminderTime = newTime
+                                SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: newTime)
+                            }
                         ))
                     }
                 )

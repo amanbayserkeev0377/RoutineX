@@ -28,7 +28,11 @@ final class ReminderToggleViewTests: XCTestCase {
         context.insert(habit)
         
         // Act
-        habit.reminderTime = Date()
+        let newTime = Date()
+        
+        await MainActor.run {
+            SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: newTime)
+        }
         
         await Task { @MainActor in
             do {
@@ -40,30 +44,33 @@ final class ReminderToggleViewTests: XCTestCase {
         
         // Assert
         XCTAssertNotNil(habit.reminderTime, "Reminder time should be set when toggle is enabled")
+        XCTAssertEqual(habit.reminderTime, newTime, "Reminder time should be the newly set time")
     }
     
-    func testToggleReminderDisablesTime() {
+    func testToggleReminderDisablesTime() async {
         // Arrange
         let habit = Habit(name: "Test", unit: "count", goalValue: 1, isCompleted: false, createdAt: Date(), reminderTime: Date())
         context.insert(habit)
         
         // Act
-        habit.reminderTime = nil
-        try? context.save()
+        await MainActor.run {
+            SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: nil)
+        }
         
         // Assert
         XCTAssertNil(habit.reminderTime, "Reminder time should be nil when toggle is disabled")
     }
     
-    func testChangingReminderTime() {
+    func testChangingReminderTime() async {
         // Arrange
         let habit = Habit(name: "Test", unit: "count", goalValue: 1, isCompleted: false, createdAt: Date(), reminderTime: Date())
         let newTime = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
         context.insert(habit)
         
         // Act
-        habit.reminderTime = newTime
-        try? context.save()
+        await MainActor.run {
+            SwiftDataManager.shared.updateHabitReminder(habit, reminderTime: newTime)
+        }
         
         // Assert
         XCTAssertEqual(habit.reminderTime, newTime, "Reminder time should update correctly")

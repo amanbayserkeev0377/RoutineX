@@ -81,6 +81,11 @@ final class SwiftDataManager {
         saveContext()
     }
     
+    func updateHabitReminder(_ habit: Habit, reminderTime: Date?) {
+        habit.reminderTime = reminderTime
+        saveContext()
+    }
+    
     // MARK: - Helper Methods
     
     private func saveContext() {
