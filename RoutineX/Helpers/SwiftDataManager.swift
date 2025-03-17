@@ -4,8 +4,10 @@ import SwiftData
 
 @MainActor
 final class SwiftDataManager {
+    // MARK: - Singleton
     static let shared = SwiftDataManager()
     
+    // MARK: - Properties
     let modelContainer: ModelContainer
     let context: ModelContext
     
@@ -14,7 +16,22 @@ final class SwiftDataManager {
         category: "DataManager"
     )
     
+    // MARK: - Initialization
     private init() {
+        do {
+            let schema = Schema([Habit.self, UnitEntity.self])
+            let config = ModelConfiguration(schema: schema)
+            self.modelContainer = try ModelContainer(for: schema, configurations: [config])
+            self.context = modelContainer.mainContext
+        } catch {
+            logger.error("Failed to initialize SwiftData: \(error.localizedDescription)")
+            fatalError("SwiftData init failed: \(error.localizedDescription)")
+        }
+        
+        setupDirectoryIfNeeded()
+    }
+
+    private func setupDirectoryIfNeeded() {
         let fileManager = FileManager.default
         if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
             let databaseURL = appSupport.appendingPathComponent("default.store")
@@ -23,24 +40,15 @@ final class SwiftDataManager {
                 try? fileManager.createDirectory(at: appSupport, withIntermediateDirectories: true)
             }
         }
-
-        do {
-            let schema = Schema([Habit.self])
-            let config = ModelConfiguration(schema: schema)
-            self.modelContainer = try ModelContainer(for: schema, configurations: [config])
-            self.context = modelContainer.mainContext
-        } catch {
-            logger.error("Failed to initialize SwiftData: \(error.localizedDescription)")
-            fatalError("SwiftData init failed: \(error.localizedDescription)")
-        }
     }
     
+    // Testing initializer
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         self.context = modelContainer.mainContext
     }
     
-    // MARK: - CRUD Operations
+    // MARK: - Habit CRUD Operations
     
     func addHabit(name: String, unit: String, goalValue: Int, isCompleted: Bool = false, createdAt: Date = Date()) {
         let newHabit = Habit(
@@ -86,8 +94,29 @@ final class SwiftDataManager {
         saveContext()
     }
     
-    // MARK: - Helper Methods
+    // MARK: - Custom Units Management
+    func fetchCustomUnits() -> [UnitEntity] {
+        let fetchDescriptor = FetchDescriptor<UnitEntity>()
+        do {
+            return try context.fetch(fetchDescriptor)
+        } catch {
+            logger.error("Error fetching custom units: \(error.localizedDescription)")
+            return []
+        }
+    }
     
+    func addCustomUnit(_ name: String) {
+        let newUnit = UnitEntity(name: name)
+        context.insert(newUnit)
+        saveContext()
+    }
+    
+    func deleteCustomUnit(_ unit: UnitEntity) {
+        context.delete(unit)
+        saveContext()
+    }
+    
+    // MARK: - Helper Methods
     private func saveContext() {
         do {
             try context.save()
