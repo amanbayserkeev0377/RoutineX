@@ -1,3 +1,5 @@
+// ReminderToggleView.swift
+
 import SwiftData
 import SwiftUI
 
@@ -74,7 +76,7 @@ struct ReminderToggleView: View {
         goalValue: 2,
         isCompleted: false,
         createdAt: Date(),
-        reminderTime: Date()
-    )
-    )
+        reminderTime: Date(),
+        activeDays: []
+    ))
 }

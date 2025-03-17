@@ -1,3 +1,5 @@
+// ActiveDaysViewModel.swift
+
 import Foundation
 
 @MainActor
@@ -18,20 +20,31 @@ final class ActiveDaysViewModel: ObservableObject {
     }
     
     func toggleDaySelection(_ day: String) {
-        if habit.activeDays.contains(day) {
-            habit.activeDays.removeAll { $0 == day }
+        if let existingDay = habit.activeDays.first(where: { $0.day == day }) {
+            habit.activeDays.removeAll { $0.id == existingDay.id }
         } else {
-            habit.activeDays.append(day)
+            let newDay = ActiveDayEntity(day: day)
+            habit.activeDays.append(newDay)
         }
         saveChanges()
     }
     
     func toggleAllDays() {
-        habit.activeDays = allSelected ? [] : weekdays
+        habit.activeDays = allSelected ? [] : weekdays.map { ActiveDayEntity(day: $0) }
         saveChanges()
     }
     
     private func saveChanges() {
-        SwiftDataManager.shared.updateHabitDays(habit, activeDays: habit.activeDays)
+        let updatedData = HabitUpdateData(
+            name: habit.name,
+            unit: habit.unit,
+            goalValue: habit.goalValue,
+            isCompleted: habit.isCompleted,
+            createdAt: habit.createdAt,
+            reminderTime: habit.reminderTime,
+            activeDays: habit.activeDays
+        )
+        
+        SwiftDataManager.shared.updateHabit(habit, with: updatedData)
     }
 }

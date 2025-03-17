@@ -1,3 +1,5 @@
+// ActiveDaysView.swift
+
 import SwiftUI
 
 struct ActiveDaysView: View {
@@ -39,7 +41,7 @@ struct ActiveDaysView: View {
     }
     
     private func dayButton(for day: String) -> some View {
-        let isSelected = viewModel.habit.activeDays.contains(day)
+        let isSelected = viewModel.habit.activeDays.contains { $0.day == day }
         
         return Button(action: {
             viewModel.toggleDaySelection(day)
@@ -61,6 +63,10 @@ struct ActiveDaysView: View {
         goalValue: 30,
         isCompleted: false,
         createdAt: Date(),
-        activeDays: ["Mon", "Wed", "Fri"]
+        activeDays: [
+            ActiveDayEntity(day: "Mon"),
+            ActiveDayEntity(day: "Wed"),
+            ActiveDayEntity(day: "Fri")
+        ]
     ))
 }

@@ -1,3 +1,5 @@
+// ActiveDaysViewModelTests.swift
+
 import XCTest
 @testable import RoutineX
 
@@ -15,6 +17,7 @@ final class ActiveDaysViewModelTests: XCTestCase {
             goalValue: 30,
             isCompleted: false,
             createdAt: Date(),
+            reminderTime: nil,
             activeDays: []
         )
         viewModel = ActiveDaysViewModel(habit: habit)
@@ -29,24 +32,24 @@ final class ActiveDaysViewModelTests: XCTestCase {
     func testSelectingDayAddsToActiveDays() {
         // Arrange
         let day = "Mon"
-        
+
         // Act
         viewModel.toggleDaySelection(day)
-        
+
         // Assert
-        XCTAssertTrue(habit.activeDays.contains(day), "Day should be added to activeDays")
+        XCTAssertTrue(habit.activeDays.contains(where: { $0.day == day }), "Day should be added to activeDays")
     }
     
     func testDeselectingDayRemovesFromActiveDays() {
         // Arrange
         let day = "Tue"
-        habit.activeDays.append(day)
-        
+        habit.activeDays.append(ActiveDayEntity(day: day))
+
         // Act
         viewModel.toggleDaySelection(day)
-        
+
         // Assert
-        XCTAssertFalse(habit.activeDays.contains(day), "Day should be removed from activeDays")
+        XCTAssertFalse(habit.activeDays.contains(where: { $0.day == day }), "Day should be removed from activeDays")
     }
     
     func testSelectingAllDays() {
@@ -59,7 +62,7 @@ final class ActiveDaysViewModelTests: XCTestCase {
     
     func testDeselectingAllDays() {
         // Arrange
-        habit.activeDays = viewModel.weekdays
+        habit.activeDays = viewModel.weekdays.map { ActiveDayEntity(day: $0) }
         
         // Act
         viewModel.toggleAllDays()
@@ -72,10 +75,10 @@ final class ActiveDaysViewModelTests: XCTestCase {
         // Arrange
         let day = "Wed"
         let initialCount = habit.activeDays.count
-        
+
         // Act
         viewModel.toggleDaySelection(day)
-        
+
         // Assert
         XCTAssertNotEqual(habit.activeDays.count, initialCount, "ActiveDays should be updated in SwiftData")
     }

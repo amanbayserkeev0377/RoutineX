@@ -1,3 +1,5 @@
+// UnitEntity.swift
+
 import SwiftData
 
 @Model

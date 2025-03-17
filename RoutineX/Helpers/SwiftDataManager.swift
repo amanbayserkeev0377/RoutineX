@@ -1,3 +1,5 @@
+// SwiftDataManager.swift
+
 import Foundation
 import OSLog
 import SwiftData
@@ -19,7 +21,7 @@ final class SwiftDataManager {
     // MARK: - Initialization
     private init() {
         do {
-            let schema = Schema([Habit.self, UnitEntity.self])
+            let schema = Schema([Habit.self, ActiveDayEntity.self, UnitEntity.self])
             let config = ModelConfiguration(schema: schema)
             self.modelContainer = try ModelContainer(for: schema, configurations: [config])
             self.context = modelContainer.mainContext
@@ -27,21 +29,8 @@ final class SwiftDataManager {
             logger.error("Failed to initialize SwiftData: \(error.localizedDescription)")
             fatalError("SwiftData init failed: \(error.localizedDescription)")
         }
-        
-        setupDirectoryIfNeeded()
     }
 
-    private func setupDirectoryIfNeeded() {
-        let fileManager = FileManager.default
-        if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let databaseURL = appSupport.appendingPathComponent("default.store")
-            
-            if !fileManager.fileExists(atPath: databaseURL.path) {
-                try? fileManager.createDirectory(at: appSupport, withIntermediateDirectories: true)
-            }
-        }
-    }
-    
     // Testing initializer
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
@@ -50,13 +39,16 @@ final class SwiftDataManager {
     
     // MARK: - Habit CRUD Operations
     
-    func addHabit(name: String, unit: String, goalValue: Int, isCompleted: Bool = false, createdAt: Date = Date()) {
+    func addHabit(with data: HabitUpdateData) {
         let newHabit = Habit(
-            name: name,
-            unit: unit,
-            goalValue: goalValue,
-            isCompleted: isCompleted,
-            createdAt: createdAt)
+            name: data.name,
+            unit: data.unit,
+            goalValue: data.goalValue,
+            isCompleted: data.isCompleted,
+            createdAt: data.createdAt,
+            reminderTime: data.reminderTime,
+            activeDays: data.activeDays
+        )
         context.insert(newHabit)
         saveContext()
     }
@@ -76,15 +68,18 @@ final class SwiftDataManager {
         }
     }
     
-    func updateHabit(_ habit: Habit, name: String, unit: String, goalValue: Int, isCompleted: Bool) {
-        habit.name = name
-        habit.unit = unit
-        habit.goalValue = goalValue
-        habit.isCompleted = isCompleted
+    func updateHabit(_ habit: Habit, with data: HabitUpdateData) {
+        habit.name = data.name
+        habit.unit = data.unit
+        habit.goalValue = data.goalValue
+        habit.isCompleted = data.isCompleted
+        habit.createdAt = data.createdAt
+        habit.reminderTime = data.reminderTime
+        habit.activeDays = data.activeDays
         saveContext()
     }
     
-    func updateHabitDays(_ habit: Habit, activeDays: [String]) {
+    func updateHabitDays(_ habit: Habit, activeDays: [ActiveDayEntity]) {
         habit.activeDays = activeDays
         saveContext()
     }
