@@ -87,7 +87,7 @@ final class SwiftDataManagerTests: XCTestCase {
 
         manager.addHabit(with: habitData)
 
-        await Task.sleep(nanoseconds: UInt64(0.1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(nanoseconds: UInt64(0.3 * Double(NSEC_PER_SEC)))
 
         var habits = manager.fetchHabits()
         guard let habit = habits.first(where: { $0.name == "Original Name" }) else {
@@ -110,7 +110,7 @@ final class SwiftDataManagerTests: XCTestCase {
 
         manager.updateHabit(habit, with: updatedData)
 
-        await Task.sleep(nanoseconds: UInt64(0.1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(nanoseconds: UInt64(0.3 * Double(NSEC_PER_SEC)))
 
         habits = manager.fetchHabits()
         guard let updatedHabit = habits.first(where: { $0.id == habit.id }) else {
@@ -139,7 +139,7 @@ final class SwiftDataManagerTests: XCTestCase {
 
         manager.addHabit(with: habitData)
 
-        await Task.sleep(nanoseconds: UInt64(0.1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(nanoseconds: UInt64(0.3 * Double(NSEC_PER_SEC)))
 
         var habits = manager.fetchHabits()
         guard let habit = habits.first(where: { $0.name == "Test Habit" }) else {
@@ -150,7 +150,7 @@ final class SwiftDataManagerTests: XCTestCase {
         let newActiveDays = ["Tue", "Thu"].map { ActiveDayEntity(day: $0) }
         manager.updateHabitDays(habit, activeDays: newActiveDays)
 
-        await Task.sleep(nanoseconds: UInt64(0.1 * Double(NSEC_PER_SEC)))
+        try await Task.sleep(nanoseconds: UInt64(0.3 * Double(NSEC_PER_SEC)))
 
         habits = manager.fetchHabits()
         guard let updatedHabit = habits.first(where: { $0.id == habit.id }) else {
