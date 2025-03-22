@@ -1,5 +1,5 @@
 //
-//  RoutineXUITests.swift
+//  RoutineXUITestsLaunchTests.swift
 //  RoutineXUITests
 //
 //  Created by Aman on 22/3/25.
@@ -7,10 +7,10 @@
 
 import XCTest
 
-final class RoutineXUITests: XCTestCase {
+final class RoutineXUITestsLaunchTests: XCTestCase {
 
     @MainActor
-    func testPlaceholder() throws {
+    func testLaunch() throws {
         XCTAssertTrue(true)
     }
 }

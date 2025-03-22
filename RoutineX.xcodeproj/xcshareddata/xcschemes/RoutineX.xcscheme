@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "07B7EC212D86001900DCF0F3"
+               BlueprintIdentifier = "07C33AD62D8DF60400229CBD"
                BuildableName = "RoutineX.app"
                BlueprintName = "RoutineX"
                ReferencedContainer = "container:RoutineX.xcodeproj">
@@ -35,7 +35,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "07B7EC332D86001B00DCF0F3"
+               BlueprintIdentifier = "07C33AE82D8DF60600229CBD"
                BuildableName = "RoutineXTests.xctest"
                BlueprintName = "RoutineXTests"
                ReferencedContainer = "container:RoutineX.xcodeproj">
@@ -46,7 +46,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "07B7EC3D2D86001B00DCF0F3"
+               BlueprintIdentifier = "07C33AF22D8DF60600229CBD"
                BuildableName = "RoutineXUITests.xctest"
                BlueprintName = "RoutineXUITests"
                ReferencedContainer = "container:RoutineX.xcodeproj">
@@ -68,7 +68,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "07B7EC212D86001900DCF0F3"
+            BlueprintIdentifier = "07C33AD62D8DF60400229CBD"
             BuildableName = "RoutineX.app"
             BlueprintName = "RoutineX"
             ReferencedContainer = "container:RoutineX.xcodeproj">
@@ -85,7 +85,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "07B7EC212D86001900DCF0F3"
+            BlueprintIdentifier = "07C33AD62D8DF60400229CBD"
             BuildableName = "RoutineX.app"
             BlueprintName = "RoutineX"
             ReferencedContainer = "container:RoutineX.xcodeproj">
