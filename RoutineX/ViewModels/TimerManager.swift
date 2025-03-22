@@ -1,4 +1,3 @@
-//
 //  TimerManager.swift
 //  RoutineX
 //
@@ -18,6 +17,22 @@ final class TimerManager {
 
     var onFinish: (() -> Void)?
 
+    private let timerFactory: (TimeInterval, Bool, @escaping (Timer) -> Void) -> Timer?
+
+    init(
+        timerFactory: @escaping (
+            TimeInterval, Bool, @escaping (Timer) -> Void
+        ) -> Timer? = { interval, repeats, block in
+        Timer.scheduledTimer(
+            withTimeInterval: interval,
+            repeats: repeats,
+            block: block
+        )
+    }
+    ) {
+        self.timerFactory = timerFactory
+    }
+
     func start(duration: TimeInterval) {
         guard !isRunning else { return }
         self.duration = duration
@@ -25,11 +40,13 @@ final class TimerManager {
         self.startDate = Date()
         self.isRunning = true
 
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        timer = timerFactory(1.0, true) { [weak self] _ in
             self?.tick()
         }
 
-        RunLoop.current.add(timer!, forMode: .common)
+        if let timer = timer {
+            RunLoop.current.add(timer, forMode: .common)
+        }
     }
 
     func pause() {
@@ -43,16 +60,25 @@ final class TimerManager {
         remainingTime = duration
     }
 
-    private func tick() {
+    public func tick() {
+        guard isRunning else { return }
         guard remainingTime > 0 else {
-            timer?.invalidate()
-            timer = nil
-            isRunning = false
-            remainingTime = 0
-            onFinish?()
+            complete()
             return
         }
 
         remainingTime -= 1
+
+        if remainingTime <= 0 {
+            complete()
+        }
+    }
+
+    private func complete() {
+        timer?.invalidate()
+        timer = nil
+        isRunning = false
+        remainingTime = 0
+        onFinish?()
     }
 }
